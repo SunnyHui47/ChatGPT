@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI ChatGPT</title>
+    <style>
+        #inputArea, #outputArea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenAI ChatGPT</h1>
+    <label for="apiKey">API Key:</label>
+    <input type="password" id="apiKey" name="apiKey" placeholder="Enter your API Key">
+    <br>
+    <label for="inputArea">Input:</label>
+    <textarea id="inputArea" placeholder="Type your message here..."></textarea>
+    <button onclick="submit()">Submit</button>
+    <br>
+    <label for="outputArea">Output:</label>
+    <textarea id="outputArea" readonly></textarea>
+    <script>
+        async function submit() {
+            const apiKey = document.getElementById("apiKey").value;
+            const input = document.getElementById("inputArea").value;
+
+            if (!apiKey) {
+                alert("Please enter your API Key.");
+                return;
+            }
+
+            if (!input) {
+                alert("Please enter a message.");
+                return;
+            }
+
+            const responseArea = document.getElementById("outputArea");
+            responseArea.value = "Loading...";
+
+            try {
+                const response = await fetch("https://api.openai.com/v1/engines/davinci-codex/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        prompt: input,
+                        max_tokens: 100,
+                        n: 1,
+                        stop: null,
+                        temperature: 0.8,
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                responseArea.value = data.choices[0].text.trim();
+            } catch (error) {
+                responseArea.value = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
